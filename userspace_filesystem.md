@@ -1,0 +1,26 @@
+用户态文件系统
+
+1、Mkfs就是在物理硬盘上将superblock写好，并且能通过这些信息可以恢复出一个所谓的fs实例。格式化完成后，在启动(mount)这个文件系统则可以通过replay方式将这个文件系统回放出来。
+
+2、mount操作就是读取硬盘上的superblock信息 然后恢复一个内存的文件系统fs信息在内存中。
+
+3、create dir操作就是在fs内存结构(dir_map)上增加记录dir目录信息。同时操作需要通过transanction记录之记录日志文件
+
+4、create file操作就是在fs内存数据结构中的dir_map结构下下的dir->file_map下创建文件信息。二这个文件信息就是用fnode或者inode来记录的。这个结构就是文件的关键结构。记录文件大小，创建时间，包含的空间extent（offset和length）信息。并且在创建这个文件的时候也会进行transanction 日志的持久化操作，从而保证数据可以恢复和回滚。然后这个file还对应了这个文件对应的真正的设备bdev指针用于后续读写改文件。
+
+5、如果对文件进行写操作
+
+5.1、覆盖写(不支持)
+
+- 5.2、append写,则每次写文件时候，其实是对这个文件进行重新冲头开始写。一般场景应为为新建一个文件,因为这个文件已经在创建的时候就分配了大小。所以这里一般需要在创建一个filewriter对象来记录这个文件的写的数据，这个数据暂时append到这个filewrite的内存buffer中。然后等待flush和fsync操作。
+
+- - 5.2.1、filewriter的flush操作：就是将这个inode对应的file的 filewriter->buffer的内容通过这个file对应的bdev的write接口写到盘上去。
+
+6、记住这里有两个概念在Linux需要区分：
+
+Flush是指的将文件的内容刷到文件系统的page cache中
+
+Fsync则是将page cache的数据刷到盘上。
+
+只是在用户态文件系统中由于没有page cache的概念的所以flush就指的刷到dev上。而fsync则是将dev上的数据刷到盘上。但是这里dev不暂存数据因此其实flush的时候就刷到了盘上。而fsync没有实际操作。
+
