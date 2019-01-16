@@ -1,6 +1,6 @@
-####编译安装myrocks mysql
+#### 编译安装myrocks mysql
 
-#####一、需要在系统上安装一些依赖的包以及相关工具：
+##### 一、需要在系统上安装一些依赖的包以及相关工具：
 
 ```js
 1、sudo yum install cmake gcc-c++ bzip2-devel libaio-devel bison zlib-devel snappy-devel boost-devel
@@ -9,7 +9,7 @@
 4、sudo yum install perl-Digest-MD5 perl-DBD-MySQL perl-DBI MySQL-python 
 ```
 
-#####二、clone myrocks代码
+##### 二、clone myrocks代码
 
 ```js
 1、git clone https://github.com/facebook/mysql-5.6.git
@@ -20,7 +20,7 @@
 6、make -j128
 7、安装：make install
 ```
-#####三、配置运行
+##### 三、配置运行
 - 1、创建一个配置文件my.cnf
 
 ```js
@@ -61,19 +61,20 @@ binlog-format=ROW
 ```
 - 4、查看数据库启动成功没有
 
-![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/show_mysql.png)
-
 ```js
-#ps aux |grep myqql
+#ps aux |grep mysql
 ```
+
+![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/show_mysql.png)
 
 
 - 5、登陆mysql
-
-![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/start_mysql.tiff)
 
 ```js
 cd /usr/local/mysql/bin
 ./mysql 
 ```
+
+![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/start_mysql.tiff)
+
 
