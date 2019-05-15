@@ -13,13 +13,23 @@
 
 ```js
 1、git clone https://github.com/facebook/mysql-5.6.git
-2、cd mysql-5.6
+2、cd mysql-5.6 #这里获取的分支是fb-mysql-5.6.35
 3、git submodule init
 4、git submodule update
 5、cmake . -DCMAKE_BUILD_TYPE=Debug -DWITH_SSL=system -DWITH_ZLIB=bundled -DMYSQL_MAINTAINER_MODE=1 -DENABLE_DTRACE=0 -DWITH_ZSTD=/usr
 6、make -j128
 7、安装：make install
 ```
+
+#此时这里编译可能存在失败
+
+![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/myrocksb_complie_error.png)
+
+#需要修改代码进行修复
+
+![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/myrocks_fix_complie_error.png)
+
+
 ##### 三、配置运行
 - 1、创建一个配置文件my.cnf
 
