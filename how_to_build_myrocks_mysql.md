@@ -32,11 +32,15 @@ default-character-set=utf8
 character_set_server=utf8
 basedir=/usr/local/mysql    #这里指定mysql安装的根目录，也就是make install的目录
 datadir=/path/to/data_base #这里指定数据文件目录
-socket=/tmp/mysql.sock    #这里很重要，需要指定成这个目录 否则启动mysql时候出错。
+socket=/tmp/mysql.sock    #这里很重要，需要指定成这个目录,没有在手动创建一个目录 否则启动mysql时候出错。
 port=3306
 server_id=1
 user=mysql
 default_authentication_plugin=mysql_native_password
+#启动时候可能报错：[ERROR] RocksDB: Problems validating data dictionary against .frm files, exiting
+#[ERROR] RocksDB: Failed to initialize DDL manager.
+#此时需要设置rocksdb_validate_tables=2忽略这个错误
+rocksdb_validate_tables=2
 
 rocksdb
 default-storage-engine=rocksdb
