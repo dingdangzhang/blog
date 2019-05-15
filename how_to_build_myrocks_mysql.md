@@ -67,13 +67,27 @@ binlog-format=ROW
 ```js
  ./mysql_install_db --user=mysql --defaults-file=/path/to/my.cnf --basedir=/usr/local/mysql
 #这里./mysql_install_db需要去执行安装目录下的可执行程序：/usr/local/mysql/scripts/mysql_install_db
+#--basedir和--datadir则分别代表mysql的安装目录和数据存放目录
 ```
 
 - 3、启动数据库
 
 ```js
 ./mysqld_safe --defaults-file=/path/to/my.cnf &
+
+官方推荐在类UNIX系统中使用mysqld_safe脚本来启动mysqld进程，
+1. 严重错误产生时自动重启mysqld进程
+2. 记录mysqld进程运行信息，保存在错误日志中（error.log，通常在my.cnf中指定）
+3. mysqld_safe的启动和运行参数与mysqld通用，对mysqld_safe进程施加参数等同于在mysqld进程上施加参数。
+4. mysqld_safe脚本可以启动任何安装方式安装的Mysql,并总是尝试将服务和数据库与工作目录相关联
+5. 若每秒启动失败5次，mysqld_safe进程为了防止消耗cpu资源，启动进程将会停顿1s。
 ```
+```js
+也可以手动直接启动mysqld进程
+/usr/local/mysql/bin/mysqld --defaults-file=/home/zhangyi/mysql-5.6/my.cnf -user=zhangyi
+这样mysqld进程就在前台启动，可以cgdb debug
+```
+
 - 4、查看数据库启动成功没有
 
 ```js
@@ -87,9 +101,21 @@ binlog-format=ROW
 
 ```js
 cd /usr/local/mysql/bin
-./mysql 
+./mysql
+
+可以将mysql执行文件路径加入到PATH环境变量中，这样直接mysql就可以执行了
+1、vim ~/.bashrc
+2、在文件中增加export PATH=$PATH:/usr/local/mysql/
+3、source ~/.bashrc生效
+
 ```
 
 ![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/start_mysql.tiff)
 
+- 6、也可以直接用MAC上的mycli客户端登陆mysql server
+
+```js
+mycli -h mysql_server_ip -u zhangyi
+```
+![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/mac-book-cli.png)
 
