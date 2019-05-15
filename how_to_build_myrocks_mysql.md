@@ -66,6 +66,7 @@ binlog-format=ROW
 
 ```js
  ./mysql_install_db --user=mysql --defaults-file=/path/to/my.cnf --basedir=/usr/local/mysql
+#这里./mysql_install_db需要去执行安装目录下的可执行程序：/usr/local/mysql/scripts/mysql_install_db
 ```
 
 - 3、启动数据库
