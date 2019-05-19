@@ -48,8 +48,19 @@ sysbench --test=memory --memory-block-size=8k --memory-total-size=4G run
 
 5	OLTP测试
 ```js
-sysbench --test=oltp --mysql-table-engine=myisam --oltp-table-size=1000000 \
---mysql-socket=/tmp/mysql.sock --mysql-user=test --mysql-host=localhost \
---mysql-password=test prepare
+sysbench /usr/local/share/sysbench/oltp_read_write.lua   --mysql-host=127.0.0.1 --mysql-port=3306 --mysql-user=zhangyi --mysql-password=zhangyi --mysql-db=zhangyi --tables=10 --table-size=1000 --report-interval=1 --threads=1 --time=30 prepare
+#这里lua脚本默认是使用的innodb的存储引擎，这里需要修改/usr/local/share/sysbench/oltp_common.lua脚本中innodb->rocksd
 ```
-上述参数指定了本次测试的表存储引擎类型为 myisam，这里需要注意的是，官方网站上的参数有一处有误，即 --mysql-table-engine，官方网站上写的是 --mysql-table-type，这个应该是没有及时更新导致的。另外，指定了表最大记录数为 1000000，其他参数就很好理解了，主要是指定登录方式。测试 OLTP 时，可以自己先创建数据库 sbtest，或者自己用参数 --mysql-db 来指定其他数据库。--mysql-table-engine 还可以指定为 innodb 等 MySQL 支持的表存储引擎类型。
+![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/lua.png)
+
+这里仅做数据库测试，其他测试可以是用sysbench –help，sysbench cpu help等查看相应参数。
+OLTP的测试流程分为3个阶段：1、建测试表及数据；2、进行测试；3清除数据。（1、prepare；2、run；3、cleanup）
+
+```js
+sysbench /usr/local/share/sysbench/oltp_read_write.lua   --mysql-host=127.0.0.1 --mysql-port=3306 --mysql-user=zhangyi --mysql-password=zhangyi --mysql-db=zhangyi --tables=10 --table-size=1000 --report-interval=1 --threads=1 --time=30 prepare
+sysbench /usr/local/share/sysbench/oltp_read_write.lua   --mysql-host=127.0.0.1 --mysql-port=3306 --mysql-user=zhangyi --mysql-password=zhangyi --mysql-db=zhangyi --tables=10 --table-size=1000 --report-interval=1 --threads=1 --time=30 run
+sysbench /usr/local/share/sysbench/oltp_read_write.lua   --mysql-host=127.0.0.1 --mysql-port=3306 --mysql-user=zhangyi --mysql-password=zhangyi --mysql-db=zhangyi --tables=10 --table-size=1000 --report-interval=1 --threads=1 --time=30 cleanup
+```
+![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/prepare.png)
+![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/run.png)
+![ceph架构](https://github.com/dingdangzhang/blog/blob/master/file_image/cleanup.png)
