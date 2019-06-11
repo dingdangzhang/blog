@@ -1,0 +1,20 @@
+#### 怎么理解transanction
+一般情况transanction的目的是记录内存中修改的数据有效性，这里的transanction可以理解为操作记录的log。也就是日志的操作。比如这样的场景：软件需要在内存中修改多个表的内容，这次修改只能是要么整体成功，要么是整体失败，如果失败可以通过回放日志的方式就行回滚。接下来我们加入有这样的场景：
+要修改内存中多个数据结果的内容： A B C D 结构。比如软件在内存中已经将 A B C D内存数据修改。此时如果掉电则数据会丢失，因此为了持久化需要将A B C D的修改内容写入盘上持久化，而且需要一个transanction的方式写入。
+- 1、修改内存数据结果
+- 2、transanction为一个buffer。所有的transanction内容往buffer中append。其实这里要保存的内容通过什么方式放在这个transanction的buffer中，完全自己定义。可以是直接字符串自解析的方式方式，可以是通过一个临时联表的方式把每一条record当时一个entry的方式挂入transanction的临时联表，待后续flush到盘上。
+- - transanction start 描述，写入盘上的格式时候按照transanction一条一条记录方式的，解析的时候根据transanction record解析出transacntion保存的内容
+- - append 修改的A B C D修改内容，这个记录什么由设计定义，比如可以全部保存ABCD的数据，和可以只保存修改的差一数据。
+- - transanction end描述
+3、此时transanction只是保存在内存中的一个buffer中，这个transanction是否需要写盘完全交由上层业务来控制，比如此时如果觉得需要持久化则需要调用flush接口，否则这段数据存在丢失风险，但是数据是完整的因为可以通过盘上的数据回归出之前成功持久化的内容。
+4、调用transanction持久化接口flush transanction buffer的内容到盘上，此时需要指定持久化的file描述符。这样就通过写文件的方式将transanction buffer中的内容写入文件。(如果这里buffer的内容大于4K的话怎么保证呢？这里可以通过对每一个transanction末尾增加crc校验的方式来确定这条transanction是否有效，从而判断这个数据是否可以恢复)
+
+日志文件的compaction
+假设保存日志的文件有最大值要求，则需要档日志文件超过大小后后需要compaction日志文件。此时需要在flush后判断文件大小，如果文件超过大小则直接把transanction buffer的内容写入新文件，然后将日志文件指针指向新的文件。
+
+replay_log日志文件：
+软件在重启后需要首先读取盘上的日志文件重启之前保存的内存数据replay到内存中
+- 因为日志文件是按照定义格式写入盘上的文件的，因此这个文件可以做到自解析，通过取得文件的格式来自解析每一条transanction record的方式能得到之前写入该transanction保存的内存内容，这样恢复出内存数据。
+- 内存数据通过日志文件replay之后就可以恢复到内存中了，这样上层软件就可以继续走启动流程了。
+
+
